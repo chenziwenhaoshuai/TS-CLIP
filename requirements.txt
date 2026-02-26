@@ -1,0 +1,9 @@
+torch==2.7.0
+torchvision
+transformers==4.40.0
+numpy
+scipy
+tqdm
+ftfy
+regex
+

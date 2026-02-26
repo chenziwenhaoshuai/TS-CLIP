@@ -1,0 +1,195 @@
+# TS-CLIP
+
+**TS-CLIP** is a contrastive learning framework that aligns time series representations with natural language descriptions, enabling zero-shot time series classification across the UCR Archive benchmark.
+
+The model uses a [TimeMoE](https://github.com/Time-MoE/Time-MoE) encoder to extract time series features and a linear projector to align them with CLIP text embeddings in a shared latent space.
+
+---
+
+## Repository Structure
+
+```
+TS-CLIP/
+├── model.py                    # TS-CLIP model definition
+├── dataset.py                  # UCR dataset loader for evaluation
+├── evaluate.py                 # Zero-shot evaluation script
+├── demo.py                     # Interactive classification demo
+├── requirements.txt
+├── checkpoint.pt               # Trained TS-CLIP weights
+├── ViT-B-32.pt                 # CLIP ViT-B/32 weights (for demo.py)
+├── preprocess_label.json       # Pre-computed CLIP text embeddings for all UCR classes
+├── TimeMoE_50M/                # TimeMoE model config and weights
+├── time_moe/                   # TimeMoE model implementation
+├── clip/                       # CLIP text encoder implementation
+└── UCRArchive_2018/            # UCR Archive 2018 datasets
+```
+
+---
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Downloads
+
+Download the following files and place them in the repository root before running evaluation:
+
+| File | Description | Link |
+|---|---|---|
+| `checkpoint.pt` | Trained TS-CLIP weights | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
+| `preprocess_label.json` | Pre-computed CLIP text embeddings for all UCR classes | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
+| `ViT-B-32.pt` | OpenAI CLIP ViT-B/32 weights (required for `demo.py`) | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
+
+
+The UCR Archive 2018 datasets can be obtained from the [UCR Time Series Classification Archive](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87).
+
+---
+
+## Quick Start
+
+### Evaluate on all UCR datasets
+
+```bash
+python evaluate.py
+```
+
+### Evaluate on specific datasets
+
+```bash
+python evaluate.py --datasets ACSF1 Car Beef BeetleFly
+```
+
+---
+
+## Demo: classify two series with free-text labels
+
+`demo.py` lets you interactively test the model's language-grounded understanding.  
+Pick any two UCR datasets, provide one text label per series, and the model will predict which label best matches each series using cosine similarity between the time series embedding and CLIP text embeddings.
+
+```bash
+python demo.py --datasets   BeetleFly Car --labels "beetle fly" "car engine" --sample_idx 0 0
+```
+
+The script prints per-label similarity scores for each series and opens a figure showing both time series with the predicted label. Use `--save_fig result.png` to save the plot to disk.
+
+| Argument | Default | Description |
+|---|---|---|
+| `--datasets` | *(required)* | Two UCR dataset names |
+| `--labels` | *(required)* | Two text labels to classify against |
+| `--sample_idx` | `0 0` | Which test sample index to use from each dataset |
+| `--clip_weights` | `./ViT-B-32.pt` | Path to CLIP ViT-B/32 weights |
+| `--checkpoint` | `./checkpoint.pt` | Path to the trained TS-CLIP checkpoint |
+| `--save_fig` | `None` | Optional path to save the output figure |
+
+### Full argument reference
+
+```bash
+python evaluate.py \
+  --checkpoint    ./checkpoint.pt \
+  --model_path    ./TimeMoE_50M \
+  --ucr_data_path ./UCRArchive_2018 \
+  --annotation_path ./preprocess_label.json \
+  --limit_length  200 \
+  --output        ./eval_results.csv
+```
+
+| Argument | Default | Description |
+|---|---|---|
+| `--checkpoint` | `./checkpoint.pt` | Path to the trained TS-CLIP checkpoint (contains all weights) |
+| `--model_path` | `./TimeMoE_50M` | Path to TimeMoE model directory (used for architecture config only) |
+| `--ucr_data_path` | `./UCRArchive_2018` | Path to UCR Archive 2018 root directory |
+| `--annotation_path` | `./preprocess_label.json` | Path to the annotation JSON file |
+| `--limit_length` | `200` | Max time series length; longer series are downsampled via linear interpolation |
+| `--datasets` | *(all)* | Optional list of dataset names to evaluate |
+| `--output` | `./eval_results.csv` | Path to save the output CSV results |
+
+---
+
+## Zero-Shot Results on UCR Archive 2018
+
+Results are obtained using `checkpoint.pt` (epoch 495) with zero-shot inference — no labeled training samples are used at test time.
+
+| Dataset | Accuracy | Dataset | Accuracy |
+|---|---|---|---|
+| ACSF1 | 0.7900 | MedicalImages | 0.7618 |
+| Adiac | 0.5090 | MelbournePedestrian | 0.8983 |
+| AllGestureWiimoteX | 0.6386 | MiddlePhalanxOutlineAgeGroup | 0.5000 |
+| AllGestureWiimoteY | 0.6871 | MiddlePhalanxOutlineCorrect | 0.8351 |
+| AllGestureWiimoteZ | 0.6057 | MiddlePhalanxTW | 0.2597 |
+| ArrowHead | 0.7600 | MixedShapesRegularTrain | 0.9559 |
+| Beef | 0.3667 | MixedShapesSmallTrain | 0.9542 |
+| BeetleFly | 0.9000 | MoteStrain | 0.8299 |
+| BirdChicken | 0.5000 | NonInvasiveFetalECGThorax1 | 0.8443 |
+| BME | 0.9933 | NonInvasiveFetalECGThorax2 | 0.8595 |
+| Car | 0.8500 | OliveOil | 0.8333 |
+| CBF | 0.9678 | OSULeaf | 0.8347 |
+| Chinatown | 0.3032 | PhalangesOutlinesCorrect | 0.7389 |
+| ChlorineConcentration | 0.7349 | Phoneme | 0.0955 |
+| CinCECGTorso | 0.7333 | PickupGestureWiimoteZ | 0.4000 |
+| Coffee | 1.0000 | PigAirwayPressure | 0.0529 |
+| Computers | 0.6400 | PigArtPressure | 0.3702 |
+| CricketX | 0.8333 | PigCVP | 0.1394 |
+| CricketY | 0.7385 | PLAID | 0.8212 |
+| CricketZ | 0.8744 | Plane | 1.0000 |
+| Crop | 0.7495 | PowerCons | 0.9500 |
+| DiatomSizeReduction | 0.8627 | ProximalPhalanxOutlineAgeGroup | 0.8146 |
+| DistalPhalanxOutlineAgeGroup | 0.5252 | ProximalPhalanxOutlineCorrect | 0.9038 |
+| DistalPhalanxOutlineCorrect | 0.3913 | ProximalPhalanxTW | 0.2732 |
+| DistalPhalanxTW | 0.2662 | RefrigerationDevices | 0.5147 |
+| DodgerLoopDay | 0.1500 | Rock | 0.6600 |
+| DodgerLoopGame | 0.5217 | ScreenType | 0.5280 |
+| DodgerLoopWeekend | 0.3043 | SemgHandGenderCh2 | 0.8383 |
+| Earthquakes | 0.7410 | SemgHandMovementCh2 | 0.4444 |
+| ECG200 | 0.8600 | SemgHandSubjectCh2 | 0.3467 |
+| ECG5000 | 0.9376 | ShakeGestureWiimoteZ | 0.5800 |
+| ECGFiveDays | 0.7851 | ShapeletSim | 0.7722 |
+| ElectricDevices | 0.7485 | ShapesAll | 0.4883 |
+| EOGHorizontalSignal | 0.2901 | SmallKitchenAppliances | 0.7893 |
+| EOGVerticalSignal | 0.1713 | SmoothSubspace | 0.3600 |
+| EthanolLevel | 0.5820 | SonyAIBORobotSurface1 | 0.7571 |
+| FaceAll | 0.8166 | SonyAIBORobotSurface2 | 0.9171 |
+| FaceFour | 0.5227 | StarLightCurves | 0.9729 |
+| FacesUCR | 0.1771 | Strawberry | 0.9541 |
+| FiftyWords | 0.5824 | SwedishLeaf | 0.9568 |
+| Fish | 0.4400 | Symbols | 0.6995 |
+| FordA | 0.9326 | SyntheticControl | 0.9867 |
+| FordB | 0.8012 | ToeSegmentation1 | 0.8114 |
+| FreezerRegularTrain | 0.9940 | ToeSegmentation2 | 0.7538 |
+| FreezerSmallTrain | 0.9940 | Trace | 0.9000 |
+| Fungi | 0.4731 | TwoLeadECG | 0.9666 |
+| GestureMidAirD1 | 0.5538 | TwoPatterns | 0.9973 |
+| GestureMidAirD2 | 0.6000 | UMD | 1.0000 |
+| GestureMidAirD3 | 0.2923 | UWaveGestureLibraryAll | 0.9341 |
+| GesturePebbleZ1 | 0.8547 | UWaveGestureLibraryX | 0.6429 |
+| GesturePebbleZ2 | 0.8671 | UWaveGestureLibraryY | 0.7044 |
+| GunPoint | 0.9867 | UWaveGestureLibraryZ | 0.6622 |
+| GunPointAgeSpan | 0.7310 | Wafer | 0.9997 |
+| GunPointMaleVersusFemale | 0.7342 | Wine | 0.7778 |
+| GunPointOldVersusYoung | 0.6317 | WordSynonyms | 0.3777 |
+| Ham | 0.6476 | Worms | 0.6364 |
+| HandOutlines | 0.9378 | WormsTwoClass | 0.7013 |
+| Haptics | 0.5260 | Yoga | 0.8483 |
+| Herring | 0.7188 | | |
+| HouseTwenty | 0.9496 | **Mean Accuracy** | **0.6928** |
+| InlineSkate | 0.1564 | | |
+| InsectEPGRegularTrain | 0.9398 | | |
+| InsectEPGSmallTrain | 0.9398 | | |
+| InsectWingbeatSound | 0.5056 | | |
+| ItalyPowerDemand | 0.9252 | | |
+| LargeKitchenAppliances | 0.8560 | | |
+| Lightning2 | 0.6066 | | |
+| Lightning7 | 0.4658 | | |
+| Mallat | 0.9224 | | |
+| Meat | 0.8167 | | |
+
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
