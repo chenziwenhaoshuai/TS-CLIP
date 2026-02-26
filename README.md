@@ -1,12 +1,20 @@
-# TS-CLIP
+# 🕐 TS-CLIP: Time Series Understanding by CLIP
 
-**TS-CLIP** is a contrastive learning framework that aligns time series representations with natural language descriptions, enabling zero-shot time series classification across the UCR Archive benchmark.
+<p align="center">
+  <a href="https://aclanthology.org/2025.emnlp-main.231.pdf"><img src="https://img.shields.io/badge/Paper-EMNLP%202025-red?logo=adobeacrobatreader&logoColor=white" /></a>
+  <img src="https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/PyTorch-orange?logo=pytorch&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-green" />
+  <img src="https://img.shields.io/badge/Zero--Shot-Classification-purple" />
+</p>
+
+**TS-CLIP** is a contrastive learning framework that aligns time series representations with natural language descriptions, enabling **zero-shot time series classification** across the UCR Archive benchmark.
 
 The model uses a [TimeMoE](https://github.com/Time-MoE/Time-MoE) encoder to extract time series features and a linear projector to align them with CLIP text embeddings in a shared latent space.
 
 ---
 
-## Repository Structure
+## 📁 Repository Structure
 
 ```
 TS-CLIP/
@@ -26,7 +34,7 @@ TS-CLIP/
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 ```bash
 pip install -r requirements.txt
@@ -34,30 +42,29 @@ pip install -r requirements.txt
 
 ---
 
-## Downloads
+## 📥 Downloads
 
 Download the following files and place them in the repository root before running evaluation:
 
 | File | Description | Link |
 |---|---|---|
-| `checkpoint.pt` | Trained TS-CLIP weights | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
-| `preprocess_label.json` | Pre-computed CLIP text embeddings for all UCR classes | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
-| `ViT-B-32.pt` | OpenAI CLIP ViT-B/32 weights (required for `demo.py`) | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
-
+| `checkpoint.pt` | 🏋️ Trained TS-CLIP weights | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
+| `preprocess_label.json` | 🏷️ Pre-computed CLIP text embeddings for all UCR classes | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
+| `ViT-B-32.pt` | 🖼️ OpenAI CLIP ViT-B/32 weights (required for `demo.py`) | [Download](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87) |
 
 The UCR Archive 2018 datasets can be obtained from the [UCR Time Series Classification Archive](https://pan.baidu.com/s/1ejqSmX9GBS7IL_da0YoFGw?pwd=3j87).
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
-### Evaluate on all UCR datasets
+### 📊 Evaluate on all UCR datasets
 
 ```bash
 python evaluate.py
 ```
 
-### Evaluate on specific datasets
+### 🎯 Evaluate on specific datasets
 
 ```bash
 python evaluate.py --datasets ACSF1 Car Beef BeetleFly
@@ -65,7 +72,7 @@ python evaluate.py --datasets ACSF1 Car Beef BeetleFly
 
 ---
 
-## Demo: classify two series with free-text labels
+## 🎮 Demo: classify two series with free-text labels
 
 `demo.py` lets you interactively test the model's language-grounded understanding.  
 Pick any two UCR datasets, provide one text label per series, and the model will predict which label best matches each series using cosine similarity between the time series embedding and CLIP text embeddings.
@@ -85,7 +92,7 @@ The script prints per-label similarity scores for each series and opens a figure
 | `--checkpoint` | `./checkpoint.pt` | Path to the trained TS-CLIP checkpoint |
 | `--save_fig` | `None` | Optional path to save the output figure |
 
-### Full argument reference
+### 🔧 Full argument reference
 
 ```bash
 python evaluate.py \
@@ -109,12 +116,12 @@ python evaluate.py \
 
 ---
 
-## Zero-Shot Results on UCR Archive 2018
+## 📈 Zero-Shot Results on UCR Archive 2018
 
-Results are obtained using `checkpoint.pt` (epoch 495) with zero-shot inference — no labeled training samples are used at test time.
+> Results are obtained using `checkpoint.pt` with **zero-shot inference** — no labeled training samples are used at test time.
 
 | Dataset | Accuracy | Dataset | Accuracy |
-|---|---|---|---|
+|---|---|---|--|
 | ACSF1 | 0.7900 | MedicalImages | 0.7618 |
 | Adiac | 0.5090 | MelbournePedestrian | 0.8983 |
 | AllGestureWiimoteX | 0.6386 | MiddlePhalanxOutlineAgeGroup | 0.5000 |
@@ -174,7 +181,7 @@ Results are obtained using `checkpoint.pt` (epoch 495) with zero-shot inference 
 | HandOutlines | 0.9378 | WormsTwoClass | 0.7013 |
 | Haptics | 0.5260 | Yoga | 0.8483 |
 | Herring | 0.7188 | | |
-| HouseTwenty | 0.9496 | **Mean Accuracy** | **0.6928** |
+| HouseTwenty | 0.9496 |  | |
 | InlineSkate | 0.1564 | | |
 | InsectEPGRegularTrain | 0.9398 | | |
 | InsectEPGSmallTrain | 0.9398 | | |
@@ -186,10 +193,8 @@ Results are obtained using `checkpoint.pt` (epoch 495) with zero-shot inference 
 | Mallat | 0.9224 | | |
 | Meat | 0.8167 | | |
 
-
 ---
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
